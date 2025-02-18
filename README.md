@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zurich Billing Portal Frontend
+
+A modern web application for managing billing records with Google OAuth authentication.
+
+## Prerequisites
+
+- Docker and Docker Compose installed
+- Google Cloud Console account
+- Backend server running on port 3337
 
 ## Getting Started
 
-First, run the development server:
+### 1. Setup Google OAuth
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Search for "OAuth consent screen" and configure it:
+
+   - Select "External" user type
+   - Fill in the required application information
+
+4. Search for "Credentials" and create OAuth client:
+   - Click "Create Credentials" → "OAuth client ID"
+   - Select "Web application" as application type
+   - Enter a name for your OAuth client
+   - Add authorized JavaScript origins:
+     ```
+     http://localhost:3000
+     ```
+   - Add authorized redirect URIs:
+     ```
+     http://localhost:3000
+     ```
+   - Click "Create"
+   - Copy the generated **Client ID** and **Client Secret**
+
+### 2. Configure Environment Variables
+
+Open the `docker-compose.yml` file and replace the OAuth credentials:
+
+```yaml
+environment:
+  - NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_client_id_here
+  - NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=your_client_secret_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Run the Application
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Build and start the containers
+docker-compose up
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# The application will be available at http://localhost:3000
+```
 
-## Learn More
+## Authentication Flow
 
-To learn more about Next.js, take a look at the following resources:
+1. User clicks "Sign in with Google"
+2. Google OAuth returns user credentials
+3. Frontend extracts email from credentials
+4. Frontend calls backend API `POST /sign-in` with the email
+5. Backend checks if email matches `ADMIN_EMAIL`:
+   - If match: Returns token with `role=admin`
+   - If no match: Returns token with `role=not_admin`
+6. Frontend stores token in localStorage
+7. All subsequent API calls include this token in Authorization header
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Google OAuth Authentication with role-based access
+- Billing Records Management (CRUD operations)
+- Secure API Integration with JWT
+- Modern React UI with TypeScript
+- Docker Containerization
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Next.js 13
+- TypeScript
+- React
+- Redux Toolkit
+- Docker
+- Google OAuth 2.0
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Development
+
+The application uses:
+
+- `host.docker.internal` to communicate with the backend from Docker
+- Port 3000 for frontend access
+- Port 3337 for backend API
+
+## Security Notes
+
+- JWT tokens are stored in localStorage
+- All API requests require valid JWT token
+- Admin privileges are determined by email match
+- CORS is configured for localhost development
