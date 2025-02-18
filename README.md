@@ -86,7 +86,6 @@ docker-compose up
 
 The application uses:
 
-- `host.docker.internal` to communicate with the backend from Docker
 - Port 3000 for frontend access
 - Port 3337 for backend API
 
