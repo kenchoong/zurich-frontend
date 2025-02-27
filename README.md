@@ -44,14 +44,51 @@ environment:
   - NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=your_client_secret_here
 ```
 
-### 3. Run the Application
+## Setup and Running the Application
+
+### 1. Start the Backend Server First
+
+Before running this frontend application, you need to set up and start the backend server:
+
+1. Clone the backend repository:
+
+   ```bash
+   git clone https://github.com/kenchoong/zurich-backend.git
+   cd zurich-backend
+   ```
+
+2. Configure the admin email in the backend's `docker-compose.yml` file:
+
+   ```yaml
+   ADMIN_EMAIL: your-email@gmail.com # Change this to your Google email
+   ```
+
+   > **Important**: The email you set here must match the Google account you'll use to log in to the frontend. Only this email will receive admin privileges.
+
+3. Start the backend server:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+4. Wait for the backend to fully initialize (database migrations and seeding will run automatically).
+
+### 2. Start the Frontend Application
+
+Once the backend is running, you can start this frontend application:
 
 ```bash
-# Build and start the containers
-docker-compose up
-
-# The application will be available at http://localhost:3000
+docker-compose up --build
 ```
+
+### 3. Authentication and Admin Access
+
+1. Access the application at http://localhost:3000
+2. Sign in with the Google account that matches the `ADMIN_EMAIL` configured in the backend
+3. If the email matches, you'll receive a token with `role=admin` which grants full access to create, update, and delete operations
+4. If you sign in with any other Google account, you'll receive a token with `role=not_admin` and will encounter 401 Unauthorized errors when attempting to modify data
+
+> **Note**: Without admin privileges, you can still view data but cannot perform any write operations.
 
 ## Authentication Flow
 
