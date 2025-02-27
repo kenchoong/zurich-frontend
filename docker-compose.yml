@@ -6,11 +6,14 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3337
+      - NEXT_PUBLIC_API_URL=http://host.docker.internal:3337 # backend in different compose file, if localhost it refer back to the same container
+      - NEXT_PUBLIC_BASE_URL=http://127.0.0.1:3000
       - NEXT_PUBLIC_GOOGLE_CLIENT_ID=
       - NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=
       - NEXT_PUBLIC_GOOGLE_REDIRECT_URI=http://localhost:3000
     volumes:
       - .:/app
       - /app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: npm run dev

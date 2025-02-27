@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import billingReducer from "./billingSlice";
 import authReducer from "./authSlice";
+import emailMaskReducer from "./emailMaskSlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       billing: billingReducer,
       auth: authReducer,
+      emailMask: emailMaskReducer,
     },
   });
 };
