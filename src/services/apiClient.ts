@@ -31,8 +31,13 @@ class ApiClient {
     if (!this.client || customToken) {
       let accessToken = customToken;
 
+      // Use host.docker.internal for server-side API calls
+      const baseURL = typeof window === 'undefined' 
+        ? 'http://host.docker.internal:3337'
+        : process.env.NEXT_PUBLIC_API_URL;
+
       this.client = axios.create({
-        baseURL: process.env.NEXT_PUBLIC_API_URL,
+        baseURL,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
