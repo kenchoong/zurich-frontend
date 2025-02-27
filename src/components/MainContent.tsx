@@ -8,6 +8,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import LoginScreen from "./LoginScreen";
 import BillingRecords from "./BillingRecords";
+import FilteredUsers from "./FilteredUsers";
 
 export function MainContent() {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,7 +35,16 @@ export function MainContent() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        {isAuthenticated ? <BillingRecords /> : <LoginScreen />}
+        {isAuthenticated ? (
+          <div className="space-y-8 p-6">
+            <FilteredUsers />
+            <div className="border-t border-gray-200 pt-8">
+              <BillingRecords />
+            </div>
+          </div>
+        ) : (
+          <LoginScreen />
+        )}
       </main>
       <Footer />
     </div>
