@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const productCode = searchParams.get("productCode");
     const location = searchParams.get("location");
+    const showEmails = searchParams.get("showEmails") === "true";
 
     // Extract the authorization token from the request headers
     const authHeader = request.headers.get("Authorization");
@@ -44,14 +45,22 @@ export async function GET(request: NextRequest) {
     const response = await apiClient.get("/billing", { params });
     let records = response.data;
 
+    // Create a map to store original emails by record ID
+    const originalEmails: Record<number, string> = {};
+    
+    // Store original emails before masking
+    records.forEach((record: any) => {
+      originalEmails[record.id] = record.email;
+    });
+
     // Mask emails server-side and format data
     records = records.map((record: any) => ({
       ...record,
-      email: maskEmail(record.email),
+      email: showEmails ? originalEmails[record.id] : maskEmail(record.email),
       premiumPaidAmount: Number(record.premiumPaidAmount) / 100,
     }));
 
-    return NextResponse.json({ records });
+    return NextResponse.json({ records, originalEmails: showEmails ? originalEmails : undefined });
   } catch (error: any) {
     console.error("Error in GET /api/billing-records:", error);
     return NextResponse.json(
@@ -160,9 +169,21 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
-    const apiClient = ApiClient.getInstance().getClient();
 
-    const response = await apiClient.delete(`/billing-records/${id}`);
+    // Extract the authorization token from the request headers
+    const authHeader = request.headers.get("Authorization");
+    const accessToken = authHeader ? authHeader.replace("Bearer ", "") : null;
+
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: "Unauthorized - No access token provided" },
+        { status: 401 }
+      );
+    }
+
+    const apiClient = ApiClient.getInstance().getClient(accessToken);
+
+    const response = await apiClient.delete(`/billing?id=${id}`);
 
     return NextResponse.json({
       success: true,

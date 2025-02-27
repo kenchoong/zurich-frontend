@@ -76,6 +76,7 @@ const BillingTable: React.FC<BillingTableProps> = ({
                     email={record.email}
                     isVisible={showEmail[record.id]}
                     onToggle={() => onToggleEmail(record.id)}
+                    recordId={record.id}
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

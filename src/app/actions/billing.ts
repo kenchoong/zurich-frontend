@@ -141,7 +141,8 @@ export async function deleteBillingRecord(token: string, id: number) {
  */
 export async function getBillingRecords(
   token: string,
-  filters?: BillingRecordFilters
+  filters?: BillingRecordFilters,
+  showEmails: boolean = false
 ) {
   try {
     const url = new URL("/api/billing", getBaseUrl());
@@ -152,6 +153,9 @@ export async function getBillingRecords(
       if (filters.location)
         url.searchParams.append("location", filters.location);
     }
+    
+    // Add showEmails parameter
+    url.searchParams.append("showEmails", String(showEmails));
 
     const headers: Record<string, string> = {};
 
@@ -161,6 +165,22 @@ export async function getBillingRecords(
     }
 
     const response = await axios.get(url.toString(), { headers });
+    
+    // If showEmails is true and originalEmails is in the response,
+    // use them to update the records
+    if (showEmails && response.data.originalEmails) {
+      const records = response.data.records || [];
+      const originalEmails = response.data.originalEmails;
+      
+      // Update the records with the original emails
+      records.forEach((record: any) => {
+        if (originalEmails[record.id]) {
+          record.email = originalEmails[record.id];
+        }
+      });
+      
+      return records;
+    }
 
     return response.data.records || [];
   } catch (error) {
