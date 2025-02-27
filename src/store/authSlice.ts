@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { RootState } from "./store";
 
 interface AuthState {
   accessToken: string | null;
@@ -93,4 +94,7 @@ const authSlice = createSlice({
 });
 
 export const { logout } = authSlice.actions;
+// Selector to get the access token
+export const selectAccessToken = (state: RootState) => state.auth.accessToken;
+
 export default authSlice.reducer;
