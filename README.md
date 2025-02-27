@@ -65,6 +65,44 @@ docker-compose up
 6. Frontend stores token in localStorage
 7. All subsequent API calls include this token in Authorization header
 
+## Architecture
+
+### Server Actions and API Structure
+
+The application follows a clean architecture pattern that separates concerns between client components, server actions, and API endpoints:
+
+#### Server Actions (`/src/app/actions`)
+
+Server actions are Next.js 13+ features that allow server-side code execution directly from client components. In this application:
+
+- Server actions are defined in the `actions` folder with the `"use server"` directive
+- They act as an intermediary layer between frontend components and the actual API endpoints
+- All server actions handle authentication token management and error handling
+- Components interact exclusively with these server actions rather than making direct API calls
+
+Example server action flow:
+
+1. Component calls a server action (e.g., `createBillingRecord`)
+2. Server action prepares the request with proper authentication headers
+3. Server action makes the internal request to the Next.js API route
+4. Server action processes the response and returns data to the component
+
+#### API Routes (`/src/app/api`)
+
+The API routes in the `api` folder handle the actual communication with the backend server:
+
+- They receive requests from server actions
+- They use the `ApiClient` service to communicate with the external backend
+- They handle additional server-side logic like data transformation and validation
+- They provide a consistent interface for all backend interactions
+
+This two-layer approach provides several benefits:
+
+- Enhanced security by keeping sensitive operations server-side
+- Simplified client components that don't need to handle API complexities
+- Consistent error handling and response formatting
+- Clear separation of concerns in the codebase
+
 ## Features
 
 - Google OAuth Authentication with role-based access
