@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { RootState } from "./store";
+import { signInWithGoogle as signInWithGoogleAction } from "../app/actions/auth";
 
 interface AuthState {
   accessToken: string | null;
@@ -26,14 +27,11 @@ export const signInWithGoogle = createAsyncThunk(
       // Decode the Google JWT to get email
       const decoded = jwtDecode<GoogleCredential>(credential);
 
-      // Call your API's sign-in endpoint
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/sign-in`,
-        { email: decoded.email }
-      );
+      // Call our server action which will proxy to the API
+      const response = await signInWithGoogleAction(decoded.email);
 
       return {
-        accessToken: response.data.issueToken.accessToken,
+        accessToken: response.issueToken.accessToken,
         email: decoded.email,
       };
     } catch (error) {
