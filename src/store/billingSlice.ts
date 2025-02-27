@@ -90,7 +90,6 @@ export const createBillingRecord = createAsyncThunk<
   CreateBillingRecord
 >("billing/createRecord", async (record, { rejectWithValue }) => {
   const accessToken = localStorage.getItem("accessToken");
-  console.log(accessToken);
   try {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/billing-records`,
